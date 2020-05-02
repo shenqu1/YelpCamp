@@ -20,11 +20,15 @@ router.get("/", (req,res)=>{
     .catch(err=>console.log(err));
 });
 
-router.post("/", (req,res)=>{
+router.post("/", isLoggedIn, (req,res)=>{
     const newCampground = {
         name: req.body.name, 
         image: req.body.image,
-        description: req.body.description
+        description: req.body.description,
+        author: {
+            id: req.user._id,
+            username: req.user.username
+        }
     };
     const campground = new Campground(newCampground);
     campground.save()
@@ -34,7 +38,7 @@ router.post("/", (req,res)=>{
     .catch(err=>console.log(err));
 });
 
-router.get("/new", (req,res)=>{
+router.get("/new", isLoggedIn, (req,res)=>{
     res.render("campgrounds/new");
 });
 
@@ -48,5 +52,12 @@ router.get("/:id", (req,res)=>{
     })
     .catch(err=>console.log(err));
 });
+
+function isLoggedIn(req, res, next) {
+    if (req.isAuthenticated()) {
+        return next();
+    }
+    res.redirect("/login");
+}
 
 module.exports = router;
