@@ -15,7 +15,8 @@ router.get("/", (req, res) => {
                 }
             });
             res.render("campgrounds/index", {
-                campgrounds: filteredCampgrounds
+                campgrounds: filteredCampgrounds,
+                page: "campgrounds"
             });
         })
         .catch(err => console.log(err));
@@ -24,6 +25,7 @@ router.get("/", (req, res) => {
 router.post("/", middleware.isLoggedIn, (req, res) => {
     const newCampground = {
         name: req.body.name,
+        price: req.body.price,
         image: req.body.image,
         description: req.body.description,
         author: {
@@ -47,11 +49,19 @@ router.get("/:id", (req, res) => {
 
     Campground.findById(req.params.id).populate("comments").exec()
         .then((campground) => {
-            res.render("campgrounds/show", {
-                campground
-            });
+            if(!campground) {
+                req.flash("error", "Campground not found");
+                res.redirect("/campgrounds");
+            } else {
+                res.render("campgrounds/show", {
+                    campground
+                });
+            }
         })
-        .catch(err => console.log(err));
+        .catch((err)=>{
+            req.flash("error", "Campground not found");
+            res.redirect("back");
+        });
 });
 
 router.get("/:id/edit", middleware.checkCampgroundOwnership, (req, res) => {
