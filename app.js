@@ -8,7 +8,9 @@ const session = require("express-session");
 
 User = require("./models/User");
 
-seedDB = require("./seeds");
+const methodOverride = require("method-override");
+
+// seedDB = require("./seeds");
 
 const campgroundRoutes = require("./controllers/campgrounds");
 const commentRoutes = require("./controllers/comments");
@@ -24,6 +26,7 @@ const app = express();
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 app.use(express.static(__dirname + "/public"));
+app.use(methodOverride("_method"));
 app.use(session({
     secret: `${process.env.SECRET}`,
     resave: false,
